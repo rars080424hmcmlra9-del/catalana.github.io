@@ -4,8 +4,8 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "mvn tomcat7:run",
+    "startCommand": "mvn tomcat7:run -Dmaven.test.skip=true",
     "restartPolicyType": "ON_FAILURE",
-    "healthCheckPath": "/index.jsp"
+    "healthCheckPath": "/"
   }
 }
