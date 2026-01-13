@@ -6,6 +6,78 @@
     <meta charset="UTF-8">
     <link rel="stylesheet" href="style/css/styles.css">
 </head>
+
+<style>
+    /* Estilos para el Anuncio CECyTEM */
+.anuncio-cecytem {
+    background-color: #f4f4f4;
+    padding: 40px 20px;
+    border-top: 4px solid #007a33; /* Verde institucional */
+    display: flex;
+    justify-content: center;
+}
+
+.cecytem-container {
+    max-width: 1000px;
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    background: white;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.cecytem-img img {
+    width: 120px;
+    height: auto;
+    border-radius: 10px;
+}
+
+.cecytem-info .tag {
+    background: #007a33;
+    color: white;
+    padding: 3px 10px;
+    border-radius: 5px;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.cecytem-info h3 {
+    margin: 10px 0 5px 0;
+    color: #333;
+}
+
+.cecytem-info p {
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.btn-cecytem {
+    display: inline-block;
+    padding: 10px 20px;
+    background-color: #007a33;
+    color: white;
+    text-decoration: none;
+    border-radius: 25px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+
+.btn-cecytem:hover {
+    background-color: #005a26;
+    transform: scale(1.05);
+}
+
+/* Responsivo para celulares */
+@media (max-width: 600px) {
+    .cecytem-container {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+</style>
 <body>
 
 <!-- ================= HEADER ================= -->
@@ -194,3 +266,4 @@ setInterval(() => {
 
 
 <!-- create by S.A.R.R -->
+
