@@ -6,6 +6,6 @@
   "deploy": {
     "startCommand": "mvn tomcat7:run",
     "restartPolicyType": "ON_FAILURE",
-    "healthCheckPath": "/"
+    "healthCheckPath": "/index.jsp"
   }
 }
