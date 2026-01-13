@@ -15,15 +15,29 @@
 
         try{
             Class.forName("com.mysql.cj.jdbc.Driver");
-            con = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/chocolateria_db?useSSL=false&serverTimezone=UTC",
-                "root",
-                ""
-            );
+
+            // --- INICIO DE CONEXIÓN HÍBRIDA RAILWAY ---
+            String dbUrl = System.getenv("MYSQL_URL"); 
+
+            if (dbUrl != null) {
+                // Conexión automática dentro de Railway (Producción)
+                con = DriverManager.getConnection(dbUrl);
+            } else {
+                // Conexión manual desde tu PC -> Railway (Desarrollo)
+                String host = "shinkansen.proxy.rlwy.net";
+                String port = "10984";
+                String dbName = "railway"; 
+                String user = "root";
+                String pass = "fxOJJTEZWGLXDUPFXYQCoSAsJTiUHuT"; // Tu contraseña de Railway
+
+                String urlPublica = "jdbc:mysql://" + host + ":" + port + "/" + dbName + "?useSSL=false&serverTimezone=UTC";
+                con = DriverManager.getConnection(urlPublica, user, pass);
+            }
+            // --- FIN DE CONEXIÓN HÍBRIDA ---
 
             // INSERT USUARIO
             String sql = "INSERT INTO usuarios(nombre,email,password,telefono,direccion) VALUES (?,?,?,?,?)";
-            PreparedStatement ps = con.prepareStatement(sql);
+            PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, nombre);
             ps.setString(2, email);
             ps.setString(3, password);
@@ -31,16 +45,14 @@
             ps.setString(5, direccion);
             ps.executeUpdate();
 
-            // OBTENER ID
-            String sqlId = "SELECT usuario_id FROM usuarios WHERE email=?";
-            PreparedStatement ps2 = con.prepareStatement(sqlId);
-            ps2.setString(1, email);
-            ResultSet rs = ps2.executeQuery();
-
+            // OBTENER ID (Optimizado usando GeneratedKeys)
+            ResultSet rs = ps.getGeneratedKeys();
             int usuarioId = 0;
             if(rs.next()){
-                usuarioId = rs.getInt("usuario_id");
+                usuarioId = rs.getInt(1);
             }
+            rs.close();
+            ps.close();
 
             // LOG
             String sqlLog = "INSERT INTO log_usuarios(usuario_id,accion,ip_address) VALUES (?,?,?)";
@@ -49,8 +61,9 @@
             psLog.setString(2, "Registro de usuario");
             psLog.setString(3, ip);
             psLog.executeUpdate();
+            psLog.close();
 
-            response.sendRedirect("../index.jsp");
+            response.sendRedirect("../index.jsp?reg=success");
 
         }catch(Exception e){
             e.printStackTrace();
