@@ -160,8 +160,22 @@
 </section>
 
 <!-- ================= FOOTER ================= -->
+<section class="anuncio-cecytem">
+    <div class="cecytem-container">
+        <div class="cecytem-img">
+            <img src="style/img/mascota_cecytem.png" alt="Mascota CECyTEM">
+        </div>
+        <div class="cecytem-info">
+            <span class="tag">Orgullosamente</span>
+            <h3>Comunidad CECyTEM</h3>
+            <p>Formando técnicos de excelencia para el futuro de Michoacán.</p>
+            <a href="https://cecytem.edu.mx/" target="_blank" class="btn-cecytem">Ver Oferta Educativa</a>
+        </div>
+    </div>
+</section>
+
 <footer>
-    © 2026 La Catalana Chocolatería
+    © 2026 La Catalana Chocolatería | <small>S.A.R.R</small>
 </footer>
 
 <!-- ================= MODAL LOGIN ================= -->
@@ -266,4 +280,5 @@ setInterval(() => {
 
 
 <!-- create by S.A.R.R -->
+
 
