@@ -352,7 +352,7 @@
 
 <footer>
 
-    © 2026 La Catalana Chocolatería | <small>S.A.R.R</small>
+    © 2026 La Catalana Chocolatería | <small>
 
 </footer>
 
@@ -561,3 +561,4 @@ setInterval(() => {
 
 
 <!-- create by S.A.R.R -->
+
