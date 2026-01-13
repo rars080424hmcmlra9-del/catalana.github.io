@@ -34,10 +34,19 @@ int ventaId = 0;
 
 try{
     Class.forName("com.mysql.cj.jdbc.Driver");
-    con = DriverManager.getConnection(
-        "jdbc:mysql://localhost:3306/chocolateria_db?useSSL=false&serverTimezone=UTC",
-        "root",""
-    );
+    
+    // --- NUEVA LÓGICA DE CONEXIÓN PARA RAILWAY ---
+    String dbUrl = System.getenv("MYSQL_URL"); 
+
+    if (dbUrl != null) {
+        // Conexión interna automática en Railway
+        con = DriverManager.getConnection(dbUrl);
+    } else {
+        // Conexión manual desde tu PC a Railway usando tus datos
+        String urlPublica = "jdbc:mysql://shinkansen.proxy.rlwy.net:10984/railway?useSSL=false&serverTimezone=UTC";
+        con = DriverManager.getConnection(urlPublica, "root", "fxOJJTEZWGLXDUPFXYQCoSAsJTiUHuT");
+    }
+    // ----------------------------------------------
 
     con.setAutoCommit(false); // 🔐 TRANSACCIÓN
 
@@ -130,7 +139,7 @@ try{
 
     /* ===== EMAIL ===== */
     final String remitente = "chocolaterialacatalana@gmail.com";
-    final String clave = "eqeizeqdoskomkvo";
+    final String clave = "sylxpcyqjdeendaj";
     String correoAdmin = "chocolaterialacatalana@gmail.com";
 
     Properties props = new Properties();
