@@ -69,12 +69,21 @@ if(request.getParameter("confirmar") != null){
 
     try{
         Class.forName("com.mysql.cj.jdbc.Driver");
-        con = DriverManager.getConnection(
-            "jdbc:mysql://localhost:3306/chocolateria_db?useSSL=false&serverTimezone=UTC",
-            "root",""
-        );
 
-        con.setAutoCommit(false);
+        // --- INICIO DE CONEXIÓN HÍBRIDA RAILWAY ---
+        String dbUrl = System.getenv("MYSQL_URL"); 
+
+        if (dbUrl != null) {
+            // Conexión automática dentro de Railway (Producción)
+            con = DriverManager.getConnection(dbUrl);
+        } else {
+            // Conexión manual desde tu PC -> Railway (Desarrollo)
+            String urlPublica = "jdbc:mysql://shinkansen.proxy.rlwy.net:10984/railway?useSSL=false&serverTimezone=UTC";
+            con = DriverManager.getConnection(urlPublica, "root", "fxOJJTEZWGLXDUPFXYQCoSAsJTiUHuT");
+        }
+        // --- FIN DE CONEXIÓN HÍBRIDA ---
+
+        con.setAutoCommit(false); // 🔐 INICIA TRANSACCIÓN
 
         /* =============================
            CALCULAR TOTAL
@@ -127,7 +136,7 @@ if(request.getParameter("confirmar") != null){
             psDetalle.executeUpdate();
         }
 
-        con.commit();
+        con.commit(); // ✅ TODO CORRECTO, GUARDAR CAMBIOS
 
         // LIMPIAR CARRITO
         session.removeAttribute("carrito");
@@ -137,7 +146,7 @@ if(request.getParameter("confirmar") != null){
         return;
 
     }catch(Exception e){
-        if(con != null) con.rollback();
+        if(con != null) con.rollback(); // ❌ ERROR, REVERTIR CAMBIOS
         e.printStackTrace();
     }finally{
         if(rsKeys != null) rsKeys.close();
