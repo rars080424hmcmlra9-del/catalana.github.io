@@ -7,23 +7,19 @@ public class Conexion {
     public static Connection getConexion() {
         Connection cn = null;
         try {
-            // Railway proporciona automáticamente la variable MYSQL_URL
+            Class.forName("com.mysql.cj.jdbc.Driver");
             String url = java.lang.System.getenv("MYSQL_URL");
             
-            // Si la variable no existe (ej. pruebas locales), usamos la URL pública
-            if (url == null || url.isEmpty()) {
-                url = "jdbc:mysql://shinkansen.proxy.rlwy.net:10984/railway?useSSL=false&serverTimezone=UTC";
-                Class.forName("com.mysql.cj.jdbc.Driver");
-                cn = DriverManager.getConnection(url, "root", "fxOJJTEZWGLXDUPFXYQCoSAsJTiUHuT");
-            } else {
-                // Conexión interna dentro de Railway
-                Class.forName("com.mysql.cj.jdbc.Driver");
+            if (url != null && !url.isEmpty()) {
+                // Railway usa la URL interna completa automáticamente
                 cn = DriverManager.getConnection(url);
+            } else {
+                // URL Pública corregida con "chocolateria_db"
+                String urlPublica = "jdbc:mysql://shinkansen.proxy.rlwy.net:10984/chocolateria_db?useSSL=false&serverTimezone=UTC";
+                cn = DriverManager.getConnection(urlPublica, "root", "fxOJJTEZWGLXDUPFXYQCoSAsJTiUHuT");
             }
-            java.lang.System.out.println("Conexión establecida con éxito.");
         } catch (Exception e) {
-            java.lang.System.err.println("ERROR EN CONEXIÓN: " + e.getMessage());
-            e.printStackTrace();
+            java.lang.System.err.println("Error de conexión: " + e.getMessage());
         }
         return cn;
     }
