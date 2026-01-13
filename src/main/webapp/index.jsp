@@ -145,16 +145,19 @@
 
     try {
         Class.forName("com.mysql.cj.jdbc.Driver");
+        
+        // Obtener la URL de Railway si existe
         String dbUrl = System.getenv("MYSQL_URL"); 
 
         if (dbUrl != null) {
+            // Conexión automática en Railway
             conIndex = DriverManager.getConnection(dbUrl);
         } else {
+            // Conexión manual para tu PC Local -> Railway
             String urlPublica = "jdbc:mysql://shinkansen.proxy.rlwy.net:10984/railway?useSSL=false&serverTimezone=UTC";
             conIndex = DriverManager.getConnection(urlPublica, "root", "fxOJJTEZWGLXDUPFXYQCoSAsJTiUHuT");
         }
 
-        // Traer 3 productos destacados
         String sqlIndex = "SELECT producto_id, nombre, precio FROM productos LIMIT 3";
         psIndex = conIndex.prepareStatement(sqlIndex);
         rsIndex = psIndex.executeQuery();
@@ -169,7 +172,11 @@
 <%
         }
     } catch(Exception e) {
-        out.print("<p>Cargando productos...</p>");
+        // En caso de error, muestra productos estáticos para que no CRASHEE la página
+%>
+        <div class="producto-card"><h4>Trufa de Caramelo</h4><p class="precio">$2.50</p></div>
+        <div class="producto-card"><h4>Tableta Almendra</h4><p class="precio">$5.00</p></div>
+<%
     } finally {
         if(rsIndex != null) rsIndex.close();
         if(psIndex != null) psIndex.close();
@@ -304,5 +311,6 @@ if(slides.length > 0) {
 
 
 <!-- create by S.A.R.R -->
+
 
 
