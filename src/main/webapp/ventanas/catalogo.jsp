@@ -11,7 +11,6 @@
 
 <jsp:include page="header.jsp"/>
 
-<!-- ================= HERO ================= -->
 <section class="hero catalogo-hero">
     <div>
         <h2>Nuestro Catálogo</h2>
@@ -19,7 +18,6 @@
     </div>
 </section>
 
-<!-- ================= FILTROS ================= -->
 <section class="container filtros">
     <a href="catalogo.jsp" class="btn filtro">Todos</a>
 
@@ -27,14 +25,26 @@
     Connection con = null;
     PreparedStatement psCat = null;
     ResultSet rsCat = null;
+    PreparedStatement psProd = null;
+    ResultSet rsProd = null;
 
     try{
         Class.forName("com.mysql.cj.jdbc.Driver");
-        con = DriverManager.getConnection(
-            "jdbc:mysql://localhost:3306/chocolateria_db?useSSL=false&serverTimezone=UTC",
-            "root",""
-        );
 
+        // --- INICIO DE CONEXIÓN HÍBRIDA RAILWAY ---
+        String dbUrl = System.getenv("MYSQL_URL"); 
+
+        if (dbUrl != null) {
+            // Conexión automática dentro de Railway
+            con = DriverManager.getConnection(dbUrl);
+        } else {
+            // Conexión manual para tu PC -> Railway
+            String urlPublica = "jdbc:mysql://shinkansen.proxy.rlwy.net:10984/railway?useSSL=false&serverTimezone=UTC";
+            con = DriverManager.getConnection(urlPublica, "root", "fxOJJTEZWGLXDUPFXYQCoSAsJTiUHuT");
+        }
+        // --- FIN DE CONEXIÓN HÍBRIDA ---
+
+        // Consulta de Categorías
         psCat = con.prepareStatement("SELECT * FROM categorias");
         rsCat = psCat.executeQuery();
 
@@ -45,21 +55,13 @@
         </a>
 <%
         }
-    }catch(Exception e){
-        e.printStackTrace();
-    }
 %>
 </section>
 
-<!-- ================= PRODUCTOS ================= -->
 <section class="container">
     <div class="productos catalogo">
 
 <%
-    PreparedStatement psProd = null;
-    ResultSet rsProd = null;
-
-    try{
         String categoriaFiltro = request.getParameter("cat");
 
         String sql =
@@ -94,7 +96,6 @@
                 Stock: <%= stock %>
             </p>
 
-            <!-- AGREGAR AL CARRITO (✔ ID CORRECTO) -->
             <% if(stock > 0){ %>
             <form action="agregar_carrito.jsp" method="post">
                 <input type="hidden" name="producto_id"
