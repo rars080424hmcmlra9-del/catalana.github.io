@@ -137,52 +137,21 @@
 <section class="container">
     <h2 class="title">Productos destacados</h2>
     <div class="productos">
-
-<%
-    Connection conIndex = null;
-    PreparedStatement psIndex = null;
-    ResultSet rsIndex = null;
-
-    try {
-        Class.forName("com.mysql.cj.jdbc.Driver");
-        
-        // Obtener la URL de Railway si existe
-        String dbUrl = System.getenv("MYSQL_URL"); 
-
-        if (dbUrl != null) {
-            // Conexión automática en Railway
-            conIndex = DriverManager.getConnection(dbUrl);
-        } else {
-            // Conexión manual para tu PC Local -> Railway
-            String urlPublica = "jdbc:mysql://shinkansen.proxy.rlwy.net:10984/railway?useSSL=false&serverTimezone=UTC";
-            conIndex = DriverManager.getConnection(urlPublica, "root", "fxOJJTEZWGLXDUPFXYQCoSAsJTiUHuT");
-        }
-
-        String sqlIndex = "SELECT producto_id, nombre, precio FROM productos LIMIT 3";
-        psIndex = conIndex.prepareStatement(sqlIndex);
-        rsIndex = psIndex.executeQuery();
-
-        while(rsIndex.next()){
-%>
         <div class="producto-card">
-            <h4><%= rsIndex.getString("nombre") %></h4>
-            <p class="precio">$<%= rsIndex.getBigDecimal("precio") %></p>
+            <h4>Trufa de Caramelo Salado</h4>
+            <p class="precio">$2.50</p>
             <a class="btn" href="ventanas/catalogo.jsp">Ver más</a>
         </div>
-<%
-        }
-    } catch(Exception e) {
-        // En caso de error, muestra productos estáticos para que no CRASHEE la página
-%>
-        <div class="producto-card"><h4>Trufa de Caramelo</h4><p class="precio">$2.50</p></div>
-        <div class="producto-card"><h4>Tableta Almendra</h4><p class="precio">$5.00</p></div>
-<%
-    } finally {
-        if(rsIndex != null) rsIndex.close();
-        if(psIndex != null) psIndex.close();
-        if(conIndex != null) conIndex.close();
-    }
-%>
+        <div class="producto-card">
+            <h4>Tableta con Almendras</h4>
+            <p class="precio">$5.00</p>
+            <a class="btn" href="ventanas/catalogo.jsp">Ver más</a>
+        </div>
+        <div class="producto-card">
+            <h4>Bombón de Maracuyá</h4>
+            <p class="precio">$1.80</p>
+            <a class="btn" href="ventanas/catalogo.jsp">Ver más</a>
+        </div>
     </div>
 </section>
 
@@ -279,38 +248,3 @@ if(slides.length > 0) {
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<!-- create by S.A.R.R -->
-
-
-
