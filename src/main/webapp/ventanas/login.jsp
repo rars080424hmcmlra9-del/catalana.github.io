@@ -1,67 +1,37 @@
-<%@ page contentType="text/html; charset=UTF-8" %>
-<%@ page import="java.sql.*" %>
+P Status 500 - Unable to compile class for JSP:
+type Exception report
 
-<%
-    String email = request.getParameter("email");
-    String password = request.getParameter("password");
-    String ip = request.getRemoteAddr();
+message Unable to compile class for JSP:
 
-    if(email != null && password != null){
+description The server encountered an internal error that prevented it from fulfilling this request.
 
-        Connection con = null;
+exception
 
-        try{
-            // DRIVER
-            Class.forName("com.mysql.cj.jdbc.Driver");
+org.apache.jasper.JasperException: Unable to compile class for JSP: 
 
-            // --- INICIO DE CONEXIÓN HÍBRIDA RAILWAY ---
-            String dbUrl = System.getenv("MYSQL_URL"); 
+An error occurred at line: 18 in the jsp file: /ventanas/login.jsp
+System cannot be resolved
+15:             Class.forName("com.mysql.cj.jdbc.Driver");
+16: 
+17:             // --- INICIO DE CONEXIÓN HÍBRIDA RAILWAY ---
+18:             String dbUrl = System.getenv("MYSQL_URL"); 
+19: 
+20:             if (dbUrl != null) {
+21:                 // Conexión automática dentro de Railway (Producción)
 
-            if (dbUrl != null) {
-                // Conexión automática dentro de Railway (Producción)
-                con = DriverManager.getConnection(dbUrl);
-            } else {
-                // Conexión manual desde tu PC -> Railway (Desarrollo)
-                String host = "shinkansen.proxy.rlwy.net";
-                String port = "10984";
-                String dbName = "railway"; 
-                String user = "root";
-                String pass = "fxOJJTEZWGLXDUPFXYQCoSAsJTiUHuT"; // Tu contraseña de Railway
 
-                String urlPublica = "jdbc:mysql://" + host + ":" + port + "/" + dbName + "?useSSL=false&serverTimezone=UTC";
-                con = DriverManager.getConnection(urlPublica, user, pass);
-            }
-            // --- FIN DE CONEXIÓN HÍBRIDA ---
+Stacktrace:
+	org.apache.jasper.compiler.DefaultErrorHandler.javacError(DefaultErrorHandler.java:103)
+	org.apache.jasper.compiler.ErrorDispatcher.javacError(ErrorDispatcher.java:366)
+	org.apache.jasper.compiler.JDTCompiler.generateClass(JDTCompiler.java:468)
+	org.apache.jasper.compiler.Compiler.compile(Compiler.java:378)
+	org.apache.jasper.compiler.Compiler.compile(Compiler.java:353)
+	org.apache.jasper.compiler.Compiler.compile(Compiler.java:340)
+	org.apache.jasper.JspCompilationContext.compile(JspCompilationContext.java:646)
+	org.apache.jasper.servlet.JspServletWrapper.service(JspServletWrapper.java:357)
+	org.apache.jasper.servlet.JspServlet.serviceJspFile(JspServlet.java:390)
+	org.apache.jasper.servlet.JspServlet.service(JspServlet.java:334)
+	javax.servlet.http.HttpServlet.service(HttpServlet.java:728)
+	org.apache.tomcat.websocket.server.WsFilter.doFilter(WsFilter.java:51)
+note The full stack trace of the root cause is available in the Apache Tomcat/7.0.47 logs.
 
-            // LLAMAR SP (Asegúrate de haber importado el SP en Railway)
-            CallableStatement cs = con.prepareCall("{CALL sp_login_usuario(?,?,?)}");
-            cs.setString(1, email);
-            cs.setString(2, password);
-            cs.setString(3, ip);
-
-            ResultSet rs = cs.executeQuery();
-
-            if(rs.next() && "success".equals(rs.getString("status"))){
-
-                session.setAttribute("usuario_id", rs.getInt("usuario_id"));
-                session.setAttribute("nombre", rs.getString("nombre"));
-                session.setAttribute("email", rs.getString("email"));
-
-                response.sendRedirect("../index.jsp");
-            }else{
-                response.sendRedirect("../index.jsp?error=1");
-            }
-
-        }catch(Exception e){
-            e.printStackTrace();
-            response.sendRedirect("../index.jsp?error=2");
-        }finally{
-            if(con != null){
-                try{ con.close(); }catch(Exception e){}
-            }
-        }
-
-    }else{
-        response.sendRedirect("../index.jsp");
-    }
-%>
