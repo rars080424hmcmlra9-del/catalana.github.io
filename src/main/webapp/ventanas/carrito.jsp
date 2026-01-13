@@ -57,7 +57,6 @@
 
     <form action="procesar_compra.jsp" method="post">
 
-        <!-- TABLA CARRITO -->
         <table class="carrito-tabla">
             <thead>
                 <tr>
@@ -72,10 +71,19 @@
 <%
     try {
         Class.forName("com.mysql.cj.jdbc.Driver");
-        con = DriverManager.getConnection(
-            "jdbc:mysql://localhost:3306/chocolateria_db?useSSL=false&serverTimezone=UTC",
-            "root", ""
-        );
+        
+        // --- INICIO DE CONEXIÓN HÍBRIDA RAILWAY ---
+        String dbUrl = System.getenv("MYSQL_URL"); 
+
+        if (dbUrl != null) {
+            // Conexión automática dentro de Railway
+            con = DriverManager.getConnection(dbUrl);
+        } else {
+            // Conexión manual para tu PC -> Railway
+            String urlPublica = "jdbc:mysql://shinkansen.proxy.rlwy.net:10984/railway?useSSL=false&serverTimezone=UTC";
+            con = DriverManager.getConnection(urlPublica, "root", "fxOJJTEZWGLXDUPFXYQCoSAsJTiUHuT");
+        }
+        // --- FIN DE CONEXIÓN HÍBRIDA ---
 
         String sql =
             "SELECT p.nombre, p.precio, d.cantidad " +
@@ -141,18 +149,16 @@
             </tfoot>
         </table>
 
-        <!-- VACIAR CARRITO -->
         <div class="acciones-carrito">
             <a href="vaciar_carrito.jsp"
                class="btn btn-danger"
                onclick="return confirm('¿Seguro que deseas vaciar el carrito?');">
-                Vaciar carrito
+                 Vaciar carrito
             </a>
         </div>
 
         <input type="hidden" name="total" value="<%= total %>">
 
-        <!-- MÉTODO DE PAGO -->
         <div class="pago-box">
             <label>Método de pago</label>
             <select name="metodo_pago" id="metodo_pago" required onchange="mostrarPago()">
@@ -162,7 +168,6 @@
                 <option value="Transferencia">Transferencia</option>
             </select>
 
-            <!-- TRANSFERENCIA -->
             <div class="transferencia-box" id="transferenciaBox">
                 <p><strong>Datos de transferencia</strong></p>
                 <label>Banco</label>
@@ -173,7 +178,6 @@
                 <input type="text" name="titular">
             </div>
 
-            <!-- TARJETA -->
             <div class="tarjeta-box" id="tarjetaBox">
                 <p><strong>Datos de tarjeta</strong></p>
                 <label>Número</label>
