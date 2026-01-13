@@ -4,8 +4,8 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "mvn jetty:run",
+    "startCommand": "mvn tomcat7:run",
     "restartPolicyType": "ON_FAILURE",
-    "healthCheckPath": "/index.jsp"
+    "healthCheckPath": "/"
   }
 }
