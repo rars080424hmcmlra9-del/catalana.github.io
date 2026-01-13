@@ -41,6 +41,7 @@
                 <configuration>
                     <port>8080</port>
                     <path>/</path>
+                    <warSourceDirectory>src/main/webapp</warSourceDirectory>
                 </configuration>
             </plugin>
         </plugins>
