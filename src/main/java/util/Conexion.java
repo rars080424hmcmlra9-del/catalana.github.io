@@ -4,28 +4,29 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 
 public class Conexion {
+
     public static Connection getConexion() {
         Connection cn = null;
         try {
+            String host = System.getenv("MYSQL_HOST");
+            String port = System.getenv("MYSQL_PORT");
+            String user = System.getenv("MYSQL_USER");
+            String pass = System.getenv("MYSQL_PASSWORD");
+
+            // 🔥 TU BASE DE DATOS ORIGINAL
+            String db = "chocolateria_db";
+
+            String url = "jdbc:mysql://" + host + ":" + port + "/" + db +
+                         "?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
+
             Class.forName("com.mysql.cj.jdbc.Driver");
-            
-            // Intentamos obtener la URL interna (la mejor opción en la nube)
-            String url = java.lang.System.getenv("MYSQL_URL");
-            
-            if (url != null && !url.isEmpty()) {
-                cn = DriverManager.getConnection(url);
-            } else {
-                // Si falla la interna, usamos la pública apuntando a 'railway'
-                // Agregamos los parámetros de seguridad para evitar errores de llave pública
-                String urlPublica = "jdbc:mysql://shinkansen.proxy.rlwy.net:10984/chocolateria_db"
-                                  + "?useSSL=false"
-                                  + "&serverTimezone=UTC"
-                                  + "&allowPublicKeyRetrieval=true";
-                
-                cn = DriverManager.getConnection(urlPublica, "root", "fxOJJTEZWGLXDUPFXYQCoSAsJTiUHuT");
-            }
+            cn = DriverManager.getConnection(url, user, pass);
+
+            System.out.println("✔ Conectado a chocolateria_db");
+
         } catch (Exception e) {
-            java.lang.System.err.println("ERROR DE CONEXIÓN: " + e.getMessage());
+            System.err.println("❌ ERROR BD: " + e.getMessage());
+            e.printStackTrace();
         }
         return cn;
     }
