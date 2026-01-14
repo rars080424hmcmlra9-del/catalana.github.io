@@ -7,34 +7,25 @@ public class Conexion {
     public static Connection getConexion() {
         Connection cn = null;
         try {
-            // Forzamos el Driver de MySQL 8/9
+            // 1. Cargamos el driver
             Class.forName("com.mysql.cj.jdbc.Driver");
 
-            // 1. Intentamos leer la URL interna de Railway
-            String urlVar = System.getenv("MYSQL_URL");
+            // 2. Datos de Railway (Asegúrate de que coincidan con tu panel)
+            String host = "shinkansen.proxy.rlwy.net";
+            String port = "10984";
+            String db   = "chocolateria_db"; // <-- AQUÍ EL NOMBRE QUE VAS A CAMBIAR
+            String user = "root";
+            String pass = "fxOJJTEZWGLXDUPFXYQCoSAsJTiUHuT";
 
-            if (urlVar != null && !urlVar.isEmpty()) {
-                // Si estamos en Railway, añadimos los parámetros de seguridad al final
-                String conParametros = urlVar + (urlVar.contains("?") ? "&" : "?") 
-                                     + "allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC";
-                cn = DriverManager.getConnection(conParametros);
-                System.out.println("✔ Conectado a Railway exitosamente");
-            } else {
-                // 2. Si estás en tu PC (Modo Local), usamos tus credenciales públicas
-                String host = "shinkansen.proxy.rlwy.net";
-                String port = "10984";
-                String db   = "chocolateria_db";
-                String user = "root";
-                String pass = "fxOJJTEZWGLXDUPFXYQCoSAsJTiUHuT";
-                
-                String urlPublica = "jdbc:mysql://" + host + ":" + port + "/" + db 
-                                  + "?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC";
-                
-                cn = DriverManager.getConnection(urlPublica, user, pass);
-                System.out.println("✔ Conectado vía Host Público");
-            }
+            // 3. Construcción de la URL con parámetros de seguridad para MySQL 8/9
+            String url = "jdbc:mysql://" + host + ":" + port + "/" + db 
+                       + "?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC";
+
+            cn = DriverManager.getConnection(url, user, pass);
+            System.out.println("✔ Conectado a la base de datos de la Chocolatería");
+
         } catch (Exception e) {
-            System.err.println("❌ ERROR CRÍTICO: " + e.getMessage());
+            System.err.println("❌ ERROR: " + e.getMessage());
         }
         return cn;
     }
