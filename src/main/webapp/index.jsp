@@ -122,6 +122,14 @@
                 if(con != null) con.close();
             }
         %>
+
+        <%
+    } catch(Exception e) {
+        // ESTA LÍNEA TE DIRÁ EL ERROR REAL EN LA PÁGINA
+        out.print("<p style='color:red;'>Error real: " + e.getMessage() + "</p>");
+        e.printStackTrace();
+    }
+%>
     </div>
 </section>
 
@@ -192,3 +200,4 @@ setInterval(() => {
 </script>
 </body>
 </html>
+
