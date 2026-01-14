@@ -7,32 +7,32 @@ public class Conexion {
     public static Connection getConexion() {
         Connection cn = null;
         try {
-            // 1. Forzamos la carga del driver moderno
+            // 1. Forzamos el driver actualizado
             Class.forName("com.mysql.cj.jdbc.Driver");
 
-            // 2. Obtenemos la URL de Railway (image_aa4ca6.png muestra que existe MYSQL_URL)
-            String mysqlUrl = System.getenv("MYSQL_URL");
-
-            if (mysqlUrl != null && !mysqlUrl.isEmpty()) {
-                // --- MODO PRODUCCIÓN (RAILWAY) ---
-                // Agregamos parámetros de seguridad vitales para evitar el error de "Public Key"
-                String connectionUrl = mysqlUrl + (mysqlUrl.contains("?") ? "&" : "?") 
-                                     + "allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC";
-                cn = DriverManager.getConnection(connectionUrl);
+            // 2. Intentamos la URL interna de Railway
+            String urlVar = java.lang.System.getenv("MYSQL_URL");
+            
+            if (urlVar != null && !urlVar.isEmpty()) {
+                // Agregamos parámetros de compatibilidad para MySQL 9
+                String urlFull = urlVar + (urlVar.contains("?") ? "&" : "?") 
+                               + "allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC";
+                cn = DriverManager.getConnection(urlFull);
             } else {
-                // --- MODO LOCAL / RESPALDO (Host Público de tu imagen) ---
-                String url = "jdbc:mysql://shinkansen.proxy.rlwy.net:10984/chocolateria_db"
-                           + "?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC";
-                
-                // Credenciales exactas de tu captura:
+                // 3. Respaldo Manual (Datos de tu imagen de Railway)
+                String host = "shinkansen.proxy.rlwy.net";
+                String port = "10984";
+                String db   = "chocolateria_db";
                 String user = "root";
                 String pass = "fxOJJTEZWGLXDUPFXYQCoSAsJTiUHuT";
                 
-                cn = DriverManager.getConnection(url, user, pass);
+                String urlPublica = "jdbc:mysql://" + host + ":" + port + "/" + db 
+                                  + "?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC";
+                
+                cn = DriverManager.getConnection(urlPublica, user, pass);
             }
         } catch (Exception e) {
-            System.err.println("❌ ERROR DE CONEXIÓN: " + e.getMessage());
-            e.printStackTrace();
+            java.lang.System.err.println("CRÍTICO: Fallo al conectar DB -> " + e.getMessage());
         }
         return cn;
     }
