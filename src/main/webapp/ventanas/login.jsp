@@ -1,16 +1,19 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ page import="java.sql.*" %>
-<%@ page import="util.Conexion" %> <%
+<%@ page import="util.Conexion" %> 
+<%
+    // Aseguramos que los datos se lean correctamente si hay caracteres especiales
+    request.setCharacterEncoding("UTF-8");
     String email = request.getParameter("email");
     String password = request.getParameter("password");
 
     if(email != null && password != null){
         Connection con = null;
         try {
-            // Llamamos a la conexión centralizada
             con = Conexion.getConexion();
 
-            String sql = "SELECT * FROM usuarios WHERE email=? AND password=?";
+            // Consulta apuntando a la tabla que moviste a 'railway'
+            String sql = "SELECT id, nombre FROM usuarios WHERE email=? AND password=?";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, email);
             ps.setString(2, password);
@@ -18,17 +21,23 @@
 
             if(rs.next()){
                 // LOGIN EXITOSO
-                session.setAttribute("usuario_id", rs.getInt("usuario_id"));
+                // NOTA: Si en tu tabla la columna se llama 'id', usa rs.getInt("id")
+                session.setAttribute("usuario_id", rs.getInt("id"));
                 session.setAttribute("nombre", rs.getString("nombre"));
-                response.sendRedirect("../index.jsp");
+                
+                response.sendRedirect("../index.jsp?login=success");
             } else {
                 // DATOS INCORRECTOS
-                response.sendRedirect("../index.jsp?error=login");
+                response.sendRedirect("../index.jsp?error=login_incorrecto");
             }
         } catch(Exception e) {
-            out.println("Error: " + e.getMessage());
+            // En lugar de imprimir en pantalla, redirigimos con el error para no romper el diseño
+            System.err.println("Error en Login: " + e.getMessage());
+            response.sendRedirect("../index.jsp?error=db");
         } finally {
-            if(con != null) con.close();
+            if(con != null) try { con.close(); } catch(Exception e) {}
         }
+    } else {
+        response.sendRedirect("../index.jsp");
     }
 %>
