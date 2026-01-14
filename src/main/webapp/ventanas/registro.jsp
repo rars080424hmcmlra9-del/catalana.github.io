@@ -1,6 +1,8 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ page import="java.sql.*" %>
-<%@ page import="util.Conexion" %> <%
+<%@ page import="util.Conexion" %> 
+<%
+    request.setCharacterEncoding("UTF-8"); // Evita errores con nombres que tengan tildes
     String nombre = request.getParameter("nombre");
     String email = request.getParameter("email");
     String password = request.getParameter("password");
@@ -8,11 +10,10 @@
     String direccion = request.getParameter("direccion");
     String ip = request.getRemoteAddr();
 
-    if(nombre != null && email != null && password != null){
+    if(nombre != null && !nombre.trim().isEmpty() && email != null){
         Connection con = null;
         try {
-            // USAMOS LA CONEXIÓN CENTRALIZADA (Ya no necesitas System.getenv aquí)
-            con = Conexion.getConexion();
+            con = Conexion.getConexion(); // Llama a la conexión que apunta a 'railway'
 
             // INSERT USUARIO
             String sql = "INSERT INTO usuarios(nombre,email,password,telefono,direccion) VALUES (?,?,?,?,?)";
@@ -24,27 +25,33 @@
             ps.setString(5, direccion);
             ps.executeUpdate();
 
+            // OBTENER ID GENERADO
             ResultSet rs = ps.getGeneratedKeys();
             int usuarioId = 0;
-            if(rs.next()){ usuarioId = rs.getInt(1); }
+            if(rs.next()){ 
+                usuarioId = rs.getInt(1); 
+            }
             
-            // LOG
-            String sqlLog = "INSERT INTO log_usuarios(usuario_id,accion,ip_address) VALUES (?,?,?)";
-            PreparedStatement psLog = con.prepareStatement(sqlLog);
-            psLog.setInt(1, usuarioId);
-            psLog.setString(2, "Registro de usuario");
-            psLog.setString(3, ip);
-            psLog.executeUpdate();
+            // LOG (Solo si se creó el usuario correctamente)
+            if(usuarioId > 0) {
+                String sqlLog = "INSERT INTO log_usuarios(usuario_id,accion,ip_address) VALUES (?,?,?)";
+                PreparedStatement psLog = con.prepareStatement(sqlLog);
+                psLog.setInt(1, usuarioId);
+                psLog.setString(2, "Registro de usuario");
+                psLog.setString(3, ip);
+                psLog.executeUpdate();
+            }
 
             response.sendRedirect("../index.jsp?reg=success");
 
         } catch(Exception e) {
-            e.printStackTrace();
-            response.sendRedirect("../index.jsp?error=" + e.getMessage());
+            // Imprime el error en los logs de Railway para que puedas verlo
+            System.err.println("Error en registro: " + e.getMessage());
+            response.sendRedirect("../index.jsp?error=database_fail");
         } finally {
             if(con != null) try { con.close(); } catch(Exception e) {}
         }
     } else {
-        response.sendRedirect("../index.jsp");
+        response.sendRedirect("../index.jsp?error=missing_data");
     }
 %>
