@@ -4,29 +4,30 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 
 public class Conexion {
-
     public static Connection getConexion() {
         Connection cn = null;
         try {
-            String host = System.getenv("MYSQL_HOST");
-            String port = System.getenv("MYSQL_PORT");
-            String user = System.getenv("MYSQL_USER");
-            String pass = System.getenv("MYSQL_PASSWORD");
-
-            // 🔥 TU BASE DE DATOS ORIGINAL
-            String db = "chocolateria_db";
-
-            String url = "jdbc:mysql://" + host + ":" + port + "/" + db +
-                         "?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
-
+            // Forzamos la carga del Driver
             Class.forName("com.mysql.cj.jdbc.Driver");
-            cn = DriverManager.getConnection(url, user, pass);
 
-            System.out.println("✔ Conectado a chocolateria_db");
-
+            // Intentamos obtener la URL de Railway (Interna)
+            String url = java.lang.System.getenv("MYSQL_URL");
+            
+            if (url != null && !url.isEmpty()) {
+                // En Railway, la URL interna ya es segura
+                cn = DriverManager.getConnection(url);
+            } else {
+                // Configuración definitiva para tu base: chocolateria_db
+                // Agregamos los parámetros para evitar errores de seguridad
+                String urlPublica = "jdbc:mysql://shinkansen.proxy.rlwy.net:10984/chocolateria_db"
+                                  + "?useSSL=false"
+                                  + "&serverTimezone=UTC"
+                                  + "&allowPublicKeyRetrieval=true";
+                
+                cn = DriverManager.getConnection(urlPublica, "root", "fxOJJTEZWGLXDUPFXYQCoSAsJTiUHuT");
+            }
         } catch (Exception e) {
-            System.err.println("❌ ERROR BD: " + e.getMessage());
-            e.printStackTrace();
+            java.lang.System.err.println("CRÍTICO: Fallo al conectar DB -> " + e.getMessage());
         }
         return cn;
     }
