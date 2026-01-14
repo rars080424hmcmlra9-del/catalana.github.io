@@ -7,28 +7,27 @@ public class Conexion {
     public static Connection getConexion() {
         Connection cn = null;
         try {
-            // Forzamos la carga del Driver para evitar errores de clase no encontrada
+            // 1. Forzar el Driver actualizado de MySQL 8/9
             Class.forName("com.mysql.cj.jdbc.Driver");
 
-            // Intentamos obtener la URL interna proporcionada por Railway
+            // 2. Intentar URL interna de Railway
             String url = java.lang.System.getenv("MYSQL_URL");
             
             if (url != null && !url.isEmpty()) {
-                // Si la variable interna existe, la usamos directamente
+                // Railway configura su URL interna automáticamente con lo necesario
                 cn = DriverManager.getConnection(url);
             } else {
-                // Configuración para acceso externo (tu PC) a chocolateria_db
-                // Es vital agregar allowPublicKeyRetrieval=true para MySQL 8+
+                // 3. URL Pública para "chocolateria_db" con parámetros de compatibilidad MySQL 9
                 String urlPublica = "jdbc:mysql://shinkansen.proxy.rlwy.net:10984/chocolateria_db"
                                   + "?useSSL=false"
                                   + "&serverTimezone=UTC"
-                                  + "&allowPublicKeyRetrieval=true";
+                                  + "&allowPublicKeyRetrieval=true"; // OBLIGATORIO para MySQL 9
                 
                 cn = DriverManager.getConnection(urlPublica, "root", "fxOJJTEZWGLXDUPFXYQCoSAsJTiUHuT");
             }
+            java.lang.System.out.println("¡Conexión exitosa a MySQL 9!");
         } catch (Exception e) {
-            java.lang.System.err.println("Error crítico en Conexion: " + e.getMessage());
-            e.printStackTrace();
+            java.lang.System.err.println("Error de conexión: " + e.getMessage());
         }
         return cn;
     }
