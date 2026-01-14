@@ -1,4 +1,4 @@
-<%@ page contentType="text/html; charset=UTF-8" %>
+<%@ page contentType="text/html; charset=UTF-8" language="java" %>
 <%@ page import="java.sql.*" %>
 <%@ page import="util.Conexion" %> 
 <%
@@ -10,7 +10,6 @@
         Connection con = null;
         try {
             con = Conexion.getConexion();
-
             String sql = "SELECT id, nombre FROM usuarios WHERE email=? AND password=?";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, email);
@@ -25,18 +24,10 @@
                 response.sendRedirect("../index.jsp?error=login_incorrecto");
             }
         } catch(Exception e) {
-            // Se usa Exception, no Excepción
-            System.err.println("Error en Login: " + e.getMessage());
+            e.printStackTrace();
             response.sendRedirect("../index.jsp?error=db");
         } finally {
-            // Se usa finally, no "en fin" o "finalmente"
-            if(con != null) { 
-                try { 
-                    con.close(); 
-                } catch(Exception e) { 
-                    e.printStackTrace(); 
-                } 
-            }
+            if(con != null) { try { con.close(); } catch(Exception e) {} }
         }
     } else {
         response.sendRedirect("../index.jsp");
