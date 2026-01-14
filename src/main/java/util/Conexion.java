@@ -7,17 +7,15 @@ public class Conexion {
     public static Connection getConexion() {
         Connection cn = null;
         try {
-            // Cargamos el driver
             Class.forName("com.mysql.cj.jdbc.Driver");
-
-            // 1. Intentar URL interna (Es la que aparece como MYSQL_URL en tu imagen)
+            
+            // Railway inyecta esta variable automáticamente
             String urlVar = java.lang.System.getenv("MYSQL_URL");
             
             if (urlVar != null && !urlVar.isEmpty()) {
                 cn = DriverManager.getConnection(urlVar);
             } else {
-                // 2. Si falla, usamos la URL pública de tu captura con los parámetros de seguridad
-                // Nombre de DB: chocolateria_db | Password: la de tu captura
+                // Configuración de respaldo con tus datos de Railway
                 String urlPublica = "jdbc:mysql://shinkansen.proxy.rlwy.net:10984/chocolateria_db"
                                   + "?useSSL=false"
                                   + "&serverTimezone=UTC"
@@ -25,10 +23,8 @@ public class Conexion {
                 
                 cn = DriverManager.getConnection(urlPublica, "root", "fxOJJTEZWGLXDUPFXYQCoSAsJTiUHuT");
             }
-            java.lang.System.out.println("CONEXIÓN EXITOSA A LA CATALANA");
         } catch (Exception e) {
-            java.lang.System.err.println("ERROR DE CONEXIÓN: " + e.getMessage());
-            e.printStackTrace();
+            java.lang.System.err.println("Error en Conexion: " + e.getMessage());
         }
         return cn;
     }
