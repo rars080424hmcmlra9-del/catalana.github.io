@@ -7,18 +7,18 @@ public class Conexion {
     public static Connection getConexion() {
         Connection cn = null;
         try {
-            // Forzamos la carga del Driver
+            // Forzamos la carga del Driver para evitar errores de clase no encontrada
             Class.forName("com.mysql.cj.jdbc.Driver");
 
-            // Intentamos obtener la URL de Railway (Interna)
+            // Intentamos obtener la URL interna proporcionada por Railway
             String url = java.lang.System.getenv("MYSQL_URL");
             
             if (url != null && !url.isEmpty()) {
-                // En Railway, la URL interna ya es segura
+                // Si la variable interna existe, la usamos directamente
                 cn = DriverManager.getConnection(url);
             } else {
-                // Configuración definitiva para tu base: chocolateria_db
-                // Agregamos los parámetros para evitar errores de seguridad
+                // Configuración para acceso externo (tu PC) a chocolateria_db
+                // Es vital agregar allowPublicKeyRetrieval=true para MySQL 8+
                 String urlPublica = "jdbc:mysql://shinkansen.proxy.rlwy.net:10984/chocolateria_db"
                                   + "?useSSL=false"
                                   + "&serverTimezone=UTC"
@@ -27,7 +27,8 @@ public class Conexion {
                 cn = DriverManager.getConnection(urlPublica, "root", "fxOJJTEZWGLXDUPFXYQCoSAsJTiUHuT");
             }
         } catch (Exception e) {
-            java.lang.System.err.println("CRÍTICO: Fallo al conectar DB -> " + e.getMessage());
+            java.lang.System.err.println("Error crítico en Conexion: " + e.getMessage());
+            e.printStackTrace();
         }
         return cn;
     }
