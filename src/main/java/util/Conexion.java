@@ -8,23 +8,24 @@ public class Conexion {
         Connection cn = null;
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
+            
+            // Intentamos obtener la URL interna (la mejor opción en la nube)
             String url = java.lang.System.getenv("MYSQL_URL");
             
             if (url != null && !url.isEmpty()) {
-                // Dentro de Railway: Usamos la URL interna tal cual
                 cn = DriverManager.getConnection(url);
             } else {
-                // Desde afuera (tu PC): Agregamos allowPublicKeyRetrieval=true
+                // Si falla la interna, usamos la pública apuntando a 'railway'
+                // Agregamos los parámetros de seguridad para evitar errores de llave pública
                 String urlPublica = "jdbc:mysql://shinkansen.proxy.rlwy.net:10984/chocolateria_db"
                                   + "?useSSL=false"
                                   + "&serverTimezone=UTC"
-                                  + "&allowPublicKeyRetrieval=true"; // <--- ESTO ES LO QUE FALTA
+                                  + "&allowPublicKeyRetrieval=true";
                 
                 cn = DriverManager.getConnection(urlPublica, "root", "fxOJJTEZWGLXDUPFXYQCoSAsJTiUHuT");
             }
         } catch (Exception e) {
-            java.lang.System.err.println("Error de conexión: " + e.getMessage());
-            e.printStackTrace();
+            java.lang.System.err.println("ERROR DE CONEXIÓN: " + e.getMessage());
         }
         return cn;
     }
