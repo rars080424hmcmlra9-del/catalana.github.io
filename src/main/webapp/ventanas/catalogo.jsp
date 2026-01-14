@@ -28,13 +28,13 @@
         ResultSet rsCat = null;
         
         try {
+            // Intentamos obtener la conexión
             con = Conexion.getConexion();
             
-            // VALIDACIÓN CRÍTICA: Si la conexión falla, detenemos la carga
             if (con == null) {
-                out.println("<p style='color:red; text-align:center;'>Error: No se pudo conectar a la base de datos.</p>");
+                out.println("<p style='color:red; text-align:center;'>⚠️ Error: No se pudo conectar a la base de datos. Verifique los logs de Railway.</p>");
             } else {
-                // Consulta de Categorías para los botones de filtro
+                // 1. Mostrar Categorías
                 psCat = con.prepareStatement("SELECT * FROM categorias");
                 rsCat = psCat.executeQuery();
                 while(rsCat.next()){
@@ -53,12 +53,12 @@
 <section class="container">
     <div class="productos catalogo">
     <%
+        // Solo intentamos cargar productos si hay conexión
         if (con != null) {
             PreparedStatement psProd = null;
             ResultSet rsProd = null;
             try {
                 String categoriaFiltro = request.getParameter("cat");
-                // Consulta SQL robusta con INNER JOIN
                 String sql = "SELECT p.producto_id, p.nombre, p.descripcion, p.precio, i.cantidad_disponible " +
                              "FROM productos p " +
                              "INNER JOIN inventario i ON p.producto_id = i.producto_id ";
@@ -72,8 +72,6 @@
                 }
 
                 rsProd = psProd.executeQuery();
-                
-                // Si no hay productos, mostrar mensaje
                 boolean tieneProductos = false;
                 
                 while(rsProd.next()){
@@ -102,20 +100,21 @@
                 }
                 
                 if(!tieneProductos) {
-                    out.println("<p>No hay productos disponibles en esta categoría.</p>");
+                    out.println("<p style='text-align:center; width:100%;'>No hay productos registrados en esta categoría.</p>");
                 }
 
             } catch(Exception e) {
-                out.println("<div class='error-box'>");
+                out.println("<div class='error-box' style='color:red;'>");
                 out.println("<h4>Error al cargar productos</h4>");
                 out.println("<p>" + e.getMessage() + "</p>");
                 out.println("</div>");
-                e.printStackTrace();
             } finally {
-                // Cierre de recursos para evitar fugas de memoria (Memory Leaks)
-                if(rsCat != null) rsCat.close();
-                if(psCat != null) psCat.close();
-                if(con != null) con.close();
+                // CERRAMOS TODO para que Railway no bloquee la base de datos por exceso de conexiones
+                if(rsCat != null) try { rsCat.close(); } catch(Exception e) {}
+                if(psCat != null) try { psCat.close(); } catch(Exception e) {}
+                if(rsProd != null) try { rsProd.close(); } catch(Exception e) {}
+                if(psProd != null) try { psProd.close(); } catch(Exception e) {}
+                if(con != null) try { con.close(); } catch(Exception e) {}
             }
         }
     %>
