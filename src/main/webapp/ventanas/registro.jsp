@@ -2,7 +2,9 @@
 <%@ page import="java.sql.*" %>
 <%@ page import="util.Conexion" %> 
 <%
-    request.setCharacterEncoding("UTF-8"); // Evita errores con nombres que tengan tildes
+    // Forzamos la codificación para que nombres con tildes no se rompan
+    request.setCharacterEncoding("UTF-8");
+    
     String nombre = request.getParameter("nombre");
     String email = request.getParameter("email");
     String password = request.getParameter("password");
@@ -10,13 +12,14 @@
     String direccion = request.getParameter("direccion");
     String ip = request.getRemoteAddr();
 
-    if(nombre != null && !nombre.trim().isEmpty() && email != null){
+    // Validación básica de campos obligatorios
+    if(nombre != null && !nombre.trim().isEmpty() && email != null && password != null){
         Connection con = null;
         try {
-            con = Conexion.getConexion(); // Llama a la conexión que apunta a 'railway'
+            con = Conexion.getConexion(); // Conexión al esquema 'railway'
 
-            // INSERT USUARIO
-            String sql = "INSERT INTO usuarios(nombre,email,password,telefono,direccion) VALUES (?,?,?,?,?)";
+            // 1. INSERTAR EL USUARIO
+            String sql = "INSERT INTO usuarios(nombre, email, password, telefono, direccion) VALUES (?,?,?,?,?)";
             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, nombre);
             ps.setString(2, email);
@@ -25,33 +28,42 @@
             ps.setString(5, direccion);
             ps.executeUpdate();
 
-            // OBTENER ID GENERADO
+            // 2. RECUPERAR EL ID GENERADO
             ResultSet rs = ps.getGeneratedKeys();
             int usuarioId = 0;
             if(rs.next()){ 
                 usuarioId = rs.getInt(1); 
             }
             
-            // LOG (Solo si se creó el usuario correctamente)
+            // 3. REGISTRAR EN EL LOG (Solo si el usuario se creó)
             if(usuarioId > 0) {
-                String sqlLog = "INSERT INTO log_usuarios(usuario_id,accion,ip_address) VALUES (?,?,?)";
+                String sqlLog = "INSERT INTO log_usuarios(usuario_id, accion, ip_address) VALUES (?,?,?)";
                 PreparedStatement psLog = con.prepareStatement(sqlLog);
                 psLog.setInt(1, usuarioId);
-                psLog.setString(2, "Registro de usuario");
+                psLog.setString(2, "Registro de usuario nuevo");
                 psLog.setString(3, ip);
                 psLog.executeUpdate();
             }
 
+            // ÉXITO: Redirigir al inicio
             response.sendRedirect("../index.jsp?reg=success");
 
         } catch(Exception e) {
-            // Imprime el error en los logs de Railway para que puedas verlo
-            System.err.println("Error en registro: " + e.getMessage());
-            response.sendRedirect("../index.jsp?error=database_fail");
+            // Este error aparecerá en la pestaña 'Logs' de Railway
+            System.err.println("Error en proceso de registro: " + e.getMessage());
+            response.sendRedirect("../index.jsp?error=db_error");
         } finally {
-            if(con != null) try { con.close(); } catch(Exception e) {}
+            // Cerramos la conexión para no saturar el pool de Railway
+            if(con != null) {
+                try { 
+                    con.close(); 
+                } catch(Exception e) { 
+                    e.printStackTrace(); 
+                }
+            }
         }
     } else {
-        response.sendRedirect("../index.jsp?error=missing_data");
+        // ERROR: Faltan datos en el formulario
+        response.sendRedirect("../index.jsp?error=missing_fields");
     }
 %>
