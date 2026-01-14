@@ -9,42 +9,38 @@ public class Conexion {
     public static Connection getConexion() {
         Connection cn = null;
         try {
-            // 1. Cargamos el Driver moderno de MySQL (imprescindible para Tomcat)
+            // 1. Cargamos el Driver (Obligatorio para Tomcat 7/8)
             Class.forName("com.mysql.cj.jdbc.Driver");
 
-            // 2. Intentamos obtener la URL de conexión de Railway
+            // 2. Intentamos obtener la URL de Railway (MYSQL_URL es la estándar)
             String mysqlUrl = System.getenv("MYSQL_URL");
 
             if (mysqlUrl != null && !mysqlUrl.isEmpty()) {
-                // --- CONFIGURACIÓN PARA PRODUCCIÓN (RAILWAY) ---
-                // Forzamos parámetros de compatibilidad para evitar el error de llave pública y SSL
-                String params = (mysqlUrl.contains("?") ? "&" : "?") 
-                              + "allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC";
-                
-                cn = DriverManager.getConnection(mysqlUrl + params);
-                System.out.println(">>> [CONEXIÓN EXITOSA] Conectado a Railway MySQL.");
+                // MODO PRODUCCIÓN: Railway
+                // Agregamos parámetros de seguridad obligatorios para MySQL moderno
+                String conParametros = mysqlUrl + (mysqlUrl.contains("?") ? "&" : "?") 
+                                     + "allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC";
+                cn = DriverManager.getConnection(conParametros);
             } else {
-                // --- CONFIGURACIÓN PARA LOCAL O RESPALDO ---
-                // Usamos los datos públicos que se muestran en tu panel de Railway
-                String host = "shinkansen.proxy.rlwy.net";
-                String port = "10984";
-                String db   = "chocolateria_db";
+                // MODO LOCAL / RESPALDO: Datos de tu panel de Railway
+                String url = "jdbc:mysql://shinkansen.proxy.rlwy.net:10984/chocolateria_db"
+                           + "?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC";
+                
+                // Estos datos deben coincidir con tu pestaña 'Variables' en Railway
                 String user = "root";
                 String pass = "fxOJJTEZWGLXDUPFXYQCoSAsJTiUHuT";
                 
-                String url = "jdbc:mysql://" + host + ":" + port + "/" + db 
-                           + "?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC";
-
                 cn = DriverManager.getConnection(url, user, pass);
-                System.out.println(">>> [CONEXIÓN EXITOSA] Conectado vía Host Público.");
             }
+            
+            System.out.println("✔ ¡Conexión establecida con éxito!");
 
         } catch (ClassNotFoundException e) {
-            System.err.println(">>> [ERROR] No se encontró el Driver MySQL: " + e.getMessage());
+            System.err.println("❌ Error: No se encontró el Driver de MySQL.");
         } catch (SQLException e) {
-            System.err.println(">>> [ERROR DE SQL] Acceso denegado o DB no encontrada: " + e.getMessage());
+            System.err.println("❌ Error de SQL (Credenciales o Red): " + e.getMessage());
         } catch (Exception e) {
-            System.err.println(">>> [ERROR GENERAL] " + e.getMessage());
+            System.err.println("❌ Error General: " + e.getMessage());
         }
         return cn;
     }
