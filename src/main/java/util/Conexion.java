@@ -27,7 +27,7 @@ public class Conexion {
                 String user = "root";
                 String pass = "fxOJJTEZWGLXBDUPFXYQCoSAsJtIuHUT";
 
-                String urlPublica = "jdbc:mysql://" + host + ":" + port + "/" + db 
+                String urlPublica = mysql:root:fxOJJTEZWGLXBDUPFXYQCoSAsJtIuHUT@mysql.railway.internal:3306/railway
                                   + "?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC";
                 
                 cn = DriverManager.getConnection(urlPublica, user, pass);
