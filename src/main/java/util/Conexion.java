@@ -2,39 +2,40 @@ package util;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.net.URI;
 
 public class Conexion {
+
     public static Connection getConexion() {
         Connection cn = null;
         try {
-            // 1. Carga forzada del driver moderno
-            Class.forName("com.mysql.cj.jdbc.Driver");
+            String env = System.getenv("DATABASE_URL");
 
-            // 2. Construcción manual de la URL basada en tus imágenes de Railway
-            // Usamos la URL pública pero con los parámetros críticos para MySQL 9
-            String host = "shinkansen.proxy.rlwy.net";
-            String port = "10984";
-            String db   = "chocolateria_db";
-            String user = "root";
-            String pass = "fxOJJTEZWGLXDUPFXYQCoSAsJTiUHuT";
-            
-            String url = "jdbc:mysql://" + host + ":" + port + "/" + db 
-                         + "?useSSL=false"
-                         + "&allowPublicKeyRetrieval=true"
-                         + "&serverTimezone=UTC"
-                         + "&useUnicode=true"
-                         + "&characterEncoding=UTF-8";
+            if (env == null || env.isEmpty()) {
+                // 🔹 LOCAL (XAMPP)
+                String url = "jdbc:mysql://localhost:3306/chocolateria_db?useSSL=false&serverTimezone=UTC";
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                cn = DriverManager.getConnection(url, "root", "");
+            } else {
+                // 🔥 RAILWAY
+                URI dbUri = new URI(env);
 
-            cn = DriverManager.getConnection(url, user, pass);
-            System.out.println(">>> CONEXIÓN EXITOSA A: " + db);
-            
-        } catch (ClassNotFoundException e) {
-            System.err.println(">>> ERROR: No se encontró el Driver de MySQL");
-        } catch (SQLException e) {
-            System.err.println(">>> ERROR DE SQL: " + e.getMessage());
+                String[] userInfo = dbUri.getUserInfo().split(":");
+                String user = userInfo[0];
+                String pass = userInfo[1];
+
+                String url = "jdbc:mysql://" + dbUri.getHost() + ":" + dbUri.getPort() +
+                             "/chocolateria_db?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true";
+
+                Class.forName("com.mysql.cj.jdbc.Driver");
+                cn = DriverManager.getConnection(url, user, pass);
+            }
+
+            System.out.println("✔ Conexión OK");
+
         } catch (Exception e) {
-            System.err.println(">>> ERROR GENERAL: " + e.getMessage());
+            System.err.println("❌ ERROR BD: " + e.getMessage());
+            e.printStackTrace();
         }
         return cn;
     }
